@@ -1,184 +1,152 @@
 document.addEventListener('DOMContentLoaded', () => {
-// Get UI elements
-  const mainWrapper = document.getElementById('js-main-wrapper');
-  const gameAvailable = document.getElementById('js-available-games');
-  const gameCounter = document.getElementById('js-game-count');
-  const gameCounterPlus = document.getElementById('js-game-count-plus');
-  const gameCounterMinus = document.getElementById('js-game-count-minus');
-  const gameTotalPrice = document.getElementById('js-game-total-price');
-  const buyGameBtn = document.getElementById('js-buy-btn');
-  const playGameBtn = document.getElementById('js-play-btn');
+  const mainEl = document.getElementById('js-main-wrapper');
+  const gameAvailEl = document.getElementById('js-available-games');
+  const gameCountEl = document.getElementById('js-game-count');
+  const gameCountPlus = document.getElementById('js-game-count-plus');
+  const gameCountMinus = document.getElementById('js-game-count-minus');
+  const gamePrice = document.getElementById('js-game-total-price');
+  const buyBtn = document.getElementById('js-buy-btn');
+  const playBtn = document.getElementById('js-play-btn');
   const chestArr = document.querySelectorAll('.js-chest-item');
   const body = document.querySelector('body');
   const closePopupBtn = document.getElementById('js-close-popup-button');
-  // Declare default values
   let gameResult = 'lose';
-  let playAvailable = false;
-  let gameAvailableCounter = 0;
-  let gameBuyingCounter = 0;
-  gameCounter.value = gameBuyingCounter;
-  calculatePrice(); // set default price as 0 $
-  checkGames(); // check if player has games
-
+  let playAvail = false;
+  let gameAvailCount = 0;
+  let gameBuyCount = 0;
+  gameCountEl.value = gameBuyCount;
   createMsg('Вскрывай сундуки из<br> моей сокровищницы!<br> Ищи несметные<br> богатства!');
+  calcPrice();
+  checkGames();
 
-  mainWrapper.addEventListener('click', function (e) {
-    if (e.target === gameCounterPlus) {
-      increaseCounter();
-    } else if (e.target === gameCounterMinus) {
-      decreaseCounter();
-    } else if (e.target === buyGameBtn) {
+  mainEl.addEventListener('click', function (e) {
+    if (e.target === buyBtn) {
       buyGame();
-    } else if (e.target === playGameBtn) {
+    } else if (e.target === gameCountMinus) {
+      decreaseCount();
+    } else if (e.target === gameCountPlus) {
+      increaseCount();
+    } else if (e.target === playBtn) {
       playGame();
     } else if (e.target === closePopupBtn) {
       closePopup();
     }
   });
 
-  // pick chest from the list
-  chestArr.forEach(function (item) {
-    item.addEventListener('click', function () {
-      chooseCondition(item);
+  chestArr.forEach(function (el) {
+    el.addEventListener('click', function () {
+      chooseCondition(el);
     });
   });
 
-  // game condition
-  function chooseCondition(item) {
-    if (playAvailable) {
-      playAvailable = false;
-      playGameBtn.disabled = true;
+  function chooseCondition(el) {
+    if (playAvail) {
+      playAvail = false;
+      playBtn.disabled = true;
       if (gameResult === 'lose') {
-        winResult(item);
+        winResult(el);
       } else if (gameResult === 'win') {
-        loseResult(item);
+        loseResult(el);
       }
     }
   }
 
-  // If user win
-  function winResult(item) {
+  function winResult(el) {
     gameResult = 'win';
     // eslint-disable-next-line no-param-reassign
-    item.className = 'chest-item chest-item--win';
+    el.className = 'chest-item chest-item--win';
     setTimeout(function () {
       callPopup('Поздравляем! <br> Вы выиграли!', '');
     }, 100);
     checkGames();
   }
 
-  // If user lose
-  function loseResult(item) {
+  function loseResult(el) {
     gameResult = 'lose';
     // eslint-disable-next-line no-param-reassign
-    item.className = 'chest-item chest-item--lose';
+    el.className = 'chest-item chest-item--lose';
     setTimeout(function () {
       callPopup('Не повезло!', 'Попробуй еще раз!');
     }, 100);
     checkGames();
   }
 
-  // call popup
-  function callPopup(title, msg) {
-    document.getElementById('js-popup-title').innerHTML = title;
-    document.getElementById('js-popup-text').innerHTML = msg;
-    body.classList.add('main-popup-enabled');
-  }
-
-  // close popup
-  function closePopup() {
-    body.classList.remove('main-popup-enabled');
-    resetGame();
-    checkGames();
-  }
-
-  // Create event for enter value
   // eslint-disable-next-line no-unused-vars
-  gameCounter.addEventListener('keyup', function (e) {
+  gameCountEl.addEventListener('keyup', function (e) {
     enterGameCount();
   });
 
-  // create counter increase function
-  function increaseCounter() {
+  function increaseCount() {
     // eslint-disable-next-line no-plusplus
-    ++gameBuyingCounter;
-    gameCounter.value = gameBuyingCounter;
-    calculatePrice();
+    ++gameBuyCount;
+    gameCountEl.value = gameBuyCount;
+    calcPrice();
   }
 
-  // create counter decrease function
-  function decreaseCounter() {
+  function decreaseCount() {
     // eslint-disable-next-line no-unused-expressions,no-plusplus
-    gameBuyingCounter > 0 ? --gameBuyingCounter : gameBuyingCounter = 0;
-    gameCounter.value = gameBuyingCounter;
-    calculatePrice();
+    gameBuyCount > 0 ? --gameBuyCount : gameBuyCount = 0;
+    gameCountEl.value = gameBuyCount;
+    calcPrice();
   }
 
-  // Data entry
   function enterGameCount() {
-    gameBuyingCounter = gameCounter.value;
-    calculatePrice();
+    gameBuyCount = gameCountEl.value;
+    calcPrice();
   }
 
-  // Price calculation
-  function calculatePrice() {
-    const totalPrice = gameBuyingCounter * 5;
-    gameTotalPrice.innerHTML = `${totalPrice}<span>$</span>`;
+  function calcPrice() {
+    const totalPrice = gameBuyCount * 5;
+    gamePrice.innerHTML = `${totalPrice}<span>$</span>`;
   }
 
-  // Reset price counter
   function resetPrice() {
-    gameBuyingCounter = 0;
-    gameCounter.value = '';
-    calculatePrice();
+    gameBuyCount = 0;
+    gameCountEl.value = '';
+    calcPrice();
   }
 
-  // Buying game
   function buyGame() {
-    gameAvailableCounter += +gameBuyingCounter;
+    gameAvailCount += +gameBuyCount;
     checkGames();
     resetPrice();
 
-    if (playAvailable) {
-      playGameBtn.disabled = true;
+    if (playAvail) {
+      playBtn.disabled = true;
     }
   }
 
-  // Play game
   function playGame() {
-    if (gameAvailableCounter > 0) {
+    if (gameAvailCount > 0) {
       // eslint-disable-next-line no-plusplus
-      --gameAvailableCounter;
+      --gameAvailCount;
     }
     checkGames();
     gameStart();
     createMsg('Отлично! Теперь выбери один из сундуков!');
-    playGameBtn.disabled = true;
+    playBtn.disabled = true;
   }
 
-  // game settings
   function gameStart() {
-    playAvailable = true;
-    mainWrapper.classList.add('game-started');
+    playAvail = true;
+    mainEl.classList.add('game-started');
     setTimeout(function () {
-      mainWrapper.classList.remove('game-started');
+      mainEl.classList.remove('game-started');
     }, 2000);
     defaultChest();
   }
 
-  // Check if player has games
   function checkGames() {
-    if (gameAvailableCounter > 0) {
-      playGameBtn.disabled = false;
+    if (gameAvailCount > 0) {
+      playBtn.disabled = false;
       createMsg('Молодец! Для начала игры необходимо нажать кнопку “Играть”');
-    } else if (gameAvailableCounter === 0) {
-      playGameBtn.disabled = true;
+    } else if (gameAvailCount === 0) {
+      playBtn.disabled = true;
       createMsg('Вскрывай сундуки из<br> моей сокровищницы!<br> Ищи несметные<br> богатства!');
     }
-    gameAvailable.innerText = gameAvailableCounter;
+    gameAvailEl.innerText = gameAvailCount;
   }
 
-  // set default chest
   function defaultChest() {
     chestArr.forEach(function (item) {
       // eslint-disable-next-line no-param-reassign
@@ -186,30 +154,39 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // reset game
   function resetGame() {
     defaultChest();
-    playAvailable = false;
+    playAvail = false;
     checkGames();
   }
 
-  // create msg
   function createMsg(msg) {
     document.querySelector('.js-game-msg p').innerHTML = msg;
   }
 
-  // start animation
+  function callPopup(title, msg) {
+    document.getElementById('js-popup-title').innerHTML = title;
+    document.getElementById('js-popup-text').innerHTML = msg;
+    body.classList.add('main-popup-enabled');
+  }
+
+  function closePopup() {
+    body.classList.remove('main-popup-enabled');
+    resetGame();
+    checkGames();
+  }
+
   function bearAnimation() {
     const animationItems = document.querySelectorAll('.viking-animation__item--beer span');
 
-    animationItems.forEach(function (item) {
+    animationItems.forEach(function (el) {
       setInterval(function () {
         // eslint-disable-next-line no-param-reassign
-        item.style.display = 'block';
+        el.style.display = 'block';
 
         setTimeout(function () {
           // eslint-disable-next-line no-param-reassign
-          item.style.display = 'none';
+          el.style.display = 'none';
         }, 1000);
       }, 6500);
     });
@@ -241,5 +218,4 @@ document.addEventListener('DOMContentLoaded', () => {
     handAnimation();
     shoulderAnimation();
   }
-// end animation
 });
