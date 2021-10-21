@@ -1,0 +1,37 @@
+.my-btn{
+  font-family: $base-font;
+  border: none;
+  background-image: url("../images/btn-bg-gold.png");
+  background-color: transparent;
+  background-size: 100% 100%;
+  background-position: center;
+  background-repeat: no-repeat;
+  color: #333;
+  font-size: 36px;
+  line-height: 25px;
+  min-width: 230px;
+  padding: 20px 20px;
+  display: inline-flex;
+  text-align: center;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  overflow: hidden;
+  position: relative;
+  transition: all .3s ease;
+  &--gold{
+    color: #52311b;
+  }
+
+  &:hover{
+    box-shadow: 0 0 10px 0 rgba(254, 198, 2, 1);
+  }
+  &:active{
+    background-image: url("../images/btn-bg-gold.png");
+  }
+  &[disabled]{
+    background-image: url("../images/btn-bg.png");
+    pointer-events: none;
+    cursor: default;
+  }
+}
